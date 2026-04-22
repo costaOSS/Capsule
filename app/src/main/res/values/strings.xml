@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Capsule</string>
+    <string name="home_title">Home</string>
+    <string name="install_title">Install</string>
+    <string name="terminal_title">Terminal</string>
+    <string name="settings_title">Settings</string>
+    <string name="no_distros">No Linux environments installed</string>
+    <string name="add_distro">Add your first distro</string>
+    <string name="running">Running</string>
+    <string name="stopped">Stopped</string>
+    <string name="download">Download</string>
+    <string name="install">Install</string>
+    <string name="delete">Delete</string>
+    <string name="theme">Theme</string>
+    <string name="font_size">Font Size</string>
+    <string name="keep_screen_on">Keep Screen On</string>
+    <string name="storage">Storage</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="clear_overlay">Clear Overlay</string>
+    <string name="connecting">Connecting...</string>
+    <string name="error">Error</string>
+    <string name="pull_image">Pull Image</string>
+    <string name="layer">Layer</string>
+    <string name="of">of</string>
+</resources>

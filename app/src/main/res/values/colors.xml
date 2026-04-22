@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="terminal_green">#FF00FF41</color>
+    <color name="terminal_green_dark">#FF00CC33</color>
+    <color name="terminal_background">#FF0D1117</color>
+    <color name="terminal_background_light">#FFF0F6FC</color>
+    <color name="surface_dark">#FF161B22</color>
+    <color name="surface_light">#FFFFFFFF</color>
+    <color name="primary">#FF00FF41</color>
+    <color name="on_primary">#FF0D1117</color>
+    <color name="secondary">#FF58A6FF</color>
+    <color name="background_dark">#FF0D1117</color>
+    <color name="background_light">#FFF0F6FC</color>
+    <color name="on_background_dark">#FFC9D1D9</color>
+    <color name="on_background_light">#FF24292E</color>
+</resources>

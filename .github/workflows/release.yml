@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  JAVA_VERSION: '17'
+  ANDROID_NDK_VERSION: '26b'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup NDK
+        run: |
+          mkdir -p $ANDROID_HOME/ndk-bundle
+          curl -fsSL "https://dl.google.com/android/repository/android-ndk-${{ env.ANDROID_NDK_VERSION }}-linux.zip" -o /tmp/ndk.zip
+          unzip -q /tmp/ndk.zip -d $ANDROID_HOME/ndk-bundle/
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle" >> $GITHUB_ENV
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle.kts') }}
+
+      - name: Decode keystore
+        run: echo $KEYSTORE | base64 -d > app/capsule.keystore
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+
+      - name: Create changelog
+        run: |
+          CHANGELOG=$(git log --oneline -20)
+          echo "## Changes" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo '```' >> CHANGELOG.md
+          echo "$CHANGELOG" >> CHANGELOG.md
+          echo '```' >> CHANGELOG.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: CHANGELOG.md
+          files: |
+            app/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: capsule-release-apk
+          path: app/build/outputs/apk/release/*.apk

@@ -1,0 +1,70 @@
+name: Build RootFS Images
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  build-images:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          pacman -Sy --noconfirm \
+            base-devel \
+            squashfs-tools \
+            zstd \
+            gzip \
+            xz \
+            curl \
+            git
+
+      - name: Build images
+        run: |
+          cd images/build
+          chmod +x *.sh
+
+          echo "=== Building Alpine ==="
+          ./alpine.sh latest arm64 ./dist
+
+          echo "=== Building Void ==="
+          ./void.sh latest arm64 ./dist || true
+
+          echo "=== Building Debian ==="
+          ./debian.sh 12 arm64 ./dist || true
+
+          echo "=== Building Ubuntu ==="
+          ./ubuntu.sh 24.04 arm64 ./dist || true
+
+          echo "=== Building Arch ==="
+          ./arch.sh arm64 ./dist || true
+
+          echo "=== Building Fedora ==="
+          ./fedora.sh 40 arm64 ./dist || true
+
+          ls -lh ./dist/*.sfs 2>/dev/null || echo "No images built"
+
+      - name: Upload images
+        if: github.event_name != 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: images-latest
+          files: dist/*.sfs dist/SHA256SUMS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rootfs-images
+          path: dist/
